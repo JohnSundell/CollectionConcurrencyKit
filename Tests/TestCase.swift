@@ -31,6 +31,35 @@ class TestCase: XCTestCase {
             XCTFail("Incorrect error thrown: \(error)", file: file, line: line)
         }
     }
+
+    func runAsyncTest(
+        named testName: String = #function,
+        in file: StaticString = #file,
+        at line: UInt = #line,
+        withTimeout timeout: TimeInterval = 10,
+        test: @escaping ([Int], Collector) async throws -> Void
+    ) {
+        // This method is needed since Linux doesn't yet support async test methods.
+        var thrownError: Error?
+        let errorHandler = { thrownError = $0 }
+        let expectation = expectation(description: testName)
+
+        Task {
+            do {
+                try await test(array, collector)
+            } catch {
+                errorHandler(error)
+            }
+
+            expectation.fulfill()
+        }
+
+        waitForExpectations(timeout: timeout)
+
+        if let error = thrownError {
+            XCTFail("Async error thrown: \(error)", file: file, line: line)
+        }
+    }
 }
 
 extension TestCase {
