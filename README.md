@@ -29,7 +29,7 @@ And here’s how we could use `asyncCompactMap` to ignore any download that fail
 let htmlStrings = await urls.asyncCompactMap { url -> String? in
     do {
         let (data, _) = try await URLSession.shared.data(from: url)
-       return String(decoding: data, as: UTF8.self)
+        return String(decoding: data, as: UTF8.self)
     } catch {
         return nil
     }
@@ -57,7 +57,7 @@ And if we instead wanted to parallelize our `asyncCompactMap`-based variant of t
 let htmlStrings = await urls.concurrentCompactMap { url -> String? in
     do {
         let (data, _) = try await URLSession.shared.data(from: url)
-       return String(decoding: data, as: UTF8.self)
+        return String(decoding: data, as: UTF8.self)
     } catch {
         return nil
     }
