@@ -33,17 +33,32 @@ public extension Sequence {
     /// - parameter priority: Any specific `TaskPriority` to assign to
     ///   the async tasks that will perform the closure calls. The
     ///   default is `nil` (meaning that the system picks a priority).
+    /// - parameter maximumConcurrency: The maximum number of tasks to
+    ///   run in parallel. The default is to run all tasks in parallel.
     /// - parameter operation: The closure to run for each element.
     func concurrentForEach(
         withPriority priority: TaskPriority? = nil,
+        maximumConcurrency: Int = Int.max,
         _ operation: @escaping (Element) async -> Void
     ) async {
-        await withTaskGroup(of: Void.self) { group in
-            for element in self {
-                group.addTask(priority: priority) {
-                    await operation(element)
+        var iteration = 0
+
+        while true {
+            let workingSequence = self.dropFirst(iteration * maximumConcurrency).prefix(maximumConcurrency)
+
+            guard workingSequence.first(where: { _ in true }) != nil else {
+                return
+            }
+
+            await withTaskGroup(of: Void.self) { group in
+                for element in workingSequence {
+                    group.addTask(priority: priority) {
+                        await operation(element)
+                    }
                 }
             }
+
+            iteration += 1
         }
     }
 
@@ -58,21 +73,36 @@ public extension Sequence {
     /// - parameter priority: Any specific `TaskPriority` to assign to
     ///   the async tasks that will perform the closure calls. The
     ///   default is `nil` (meaning that the system picks a priority).
+    /// - parameter maximumConcurrency: The maximum number of tasks to
+    ///   run in parallel. The default is to run all tasks in parallel.
     /// - parameter operation: The closure to run for each element.
     /// - throws: Rethrows any error thrown by the passed closure.
     func concurrentForEach(
         withPriority priority: TaskPriority? = nil,
+        maximumConcurrency: Int = Int.max,
         _ operation: @escaping (Element) async throws -> Void
     ) async throws {
-        try await withThrowingTaskGroup(of: Void.self) { group in
-            for element in self {
-                group.addTask(priority: priority) {
-                    try await operation(element)
-                }
+        var iteration = 0
+
+        while true {
+            let workingSequence = self.dropFirst(iteration * maximumConcurrency).prefix(maximumConcurrency)
+
+            guard workingSequence.first(where: { _ in true }) != nil else {
+                return
             }
 
-            // Propagate any errors thrown by the group's tasks:
-            for try await _ in group {}
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for element in workingSequence {
+                    group.addTask(priority: priority) {
+                        try await operation(element)
+                    }
+                }
+
+                // Propagate any errors thrown by the group's tasks:
+                for try await _ in group {}
+            }
+
+            iteration += 1
         }
     }
 }
