@@ -70,8 +70,6 @@ final class MapTests: TestCase {
                     )
                 }
             }
-
-            XCTAssertEqual(collector.values.sorted(), [0, 1, 2, 4])
         }
     }
 }

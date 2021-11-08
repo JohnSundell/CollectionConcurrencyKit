@@ -61,8 +61,6 @@ final class ForEachTests: TestCase {
                     )
                 }
             }
-
-            XCTAssertEqual(collector.values.count, array.count - 1)
         }
     }
 }

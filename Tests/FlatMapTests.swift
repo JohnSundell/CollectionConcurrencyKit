@@ -73,8 +73,6 @@ final class FlatMapTests: TestCase {
                     )
                 }
             }
-
-            XCTAssertEqual(collector.values.sorted(), [0, 1, 2, 4])
         }
     }
 }

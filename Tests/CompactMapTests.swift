@@ -67,14 +67,12 @@ final class CompactMapTests: TestCase {
         runAsyncTest { array, collector in
             await self.verifyErrorThrown { error in
                 try await array.concurrentCompactMap { int in
-                    int == 2 ? nil : try await self.collector.tryCollectAndTransform(
+                    try await self.collector.tryCollectAndTransform(
                         int,
                         throwError: int == 3 ? error : nil
                     )
                 }
             }
-
-            XCTAssertEqual(collector.values.sorted(), [0, 1, 4])
         }
     }
 }
