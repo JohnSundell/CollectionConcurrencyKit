@@ -8,49 +8,61 @@ import XCTest
 import CollectionConcurrencyKit
 
 final class ForEachTests: TestCase {
-    func testNonThrowingAsyncForEach() async {
-        await array.asyncForEach { await self.collector.collect($0) }
-        XCTAssertEqual(collector.values, array)
-    }
-
-    func testThrowingAsyncForEachThatDoesNotThrow() async throws {
-        try await array.asyncForEach { try await self.collector.tryCollect($0) }
-        XCTAssertEqual(collector.values, array)
-    }
-
-    func testThrowingAsyncForEachThatThrows() async {
-        await verifyErrorThrown { error in
-            try await array.asyncForEach { int in
-                try await self.collector.tryCollect(
-                    int,
-                    throwError: int == 3 ? error : nil
-                )
-            }
+    func testNonThrowingAsyncForEach() {
+        runAsyncTest { array, collector in
+            await array.asyncForEach { await collector.collect($0) }
+            XCTAssertEqual(collector.values, array)
         }
-
-        XCTAssertEqual(collector.values, [0, 1, 2])
     }
 
-    func testNonThrowingConcurrentForEach() async {
-        await array.concurrentForEach { await self.collector.collect($0) }
-        XCTAssertEqual(collector.values.sorted(), array)
-    }
-
-    func testThrowingConcurrentForEachThatDoesNotThrow() async throws {
-        try await array.concurrentForEach { try await self.collector.tryCollect($0) }
-        XCTAssertEqual(collector.values.sorted(), array)
-    }
-
-    func testThrowingConcurrentForEachThatThrows() async {
-        await verifyErrorThrown { error in
-            try await array.concurrentForEach { int in
-                try await self.collector.tryCollect(
-                    int,
-                    throwError: int == 3 ? error : nil
-                )
-            }
+    func testThrowingAsyncForEachThatDoesNotThrow() {
+        runAsyncTest { array, collector in
+            try await array.asyncForEach { try await collector.tryCollect($0) }
+            XCTAssertEqual(collector.values, array)
         }
+    }
 
-        XCTAssertEqual(collector.values.count, array.count - 1)
+    func testThrowingAsyncForEachThatThrows() {
+        runAsyncTest { array, collector in
+            await self.verifyErrorThrown { error in
+                try await array.asyncForEach { int in
+                    try await collector.tryCollect(
+                        int,
+                        throwError: int == 3 ? error : nil
+                    )
+                }
+            }
+
+            XCTAssertEqual(collector.values, [0, 1, 2])
+        }
+    }
+
+    func testNonThrowingConcurrentForEach() {
+        runAsyncTest { array, collector in
+            await array.concurrentForEach { await collector.collect($0) }
+            XCTAssertEqual(collector.values.sorted(), array)
+        }
+    }
+
+    func testThrowingConcurrentForEachThatDoesNotThrow() {
+        runAsyncTest { array, collector in
+            try await array.concurrentForEach { try await collector.tryCollect($0) }
+            XCTAssertEqual(collector.values.sorted(), array)
+        }
+    }
+
+    func testThrowingConcurrentForEachThatThrows() {
+        runAsyncTest { array, collector in
+            await self.verifyErrorThrown { error in
+                try await array.concurrentForEach { int in
+                    try await collector.tryCollect(
+                        int,
+                        throwError: int == 3 ? error : nil
+                    )
+                }
+            }
+
+            XCTAssertEqual(collector.values.count, array.count - 1)
+        }
     }
 }
