@@ -66,6 +66,23 @@ let htmlStrings = await urls.concurrentCompactMap { url -> String? in
 
 Regardless of whether we choose the async or concurrent versions of CollectionConcurrencyKit’s APIs, the order of the returned results is always guaranteed to be the exact same as when calling the standard library’s non-async versions of those APIs. So, the order of the `htmlStrings` array will be identical across all of the above four code samples (ignoring any `nil` values produced by the compactMap-variants).
 
+## What APIs are included?
+
+CollectionConcurrencyKit adds the following APIs to all `Sequence`-conforming Swift collections:
+
+- Async variants that perform each of their operations in sequence, one after the other:
+    - `asyncForEach`
+    - `asyncMap`
+    - `asyncCompactMap`
+    - `asyncFlatMap`
+- Concurrent variants that perform each of their operations in parallel (while still maintaining a predictable output order):
+    - `concurrentForEach`
+    - `concurrentMap`
+    - `concurrentCompactMap`
+    - `concurrentFlatMap`
+
+Both throwing and non-throwing versions of all of the above APIs are included. To learn more about `map`, `flatMap`, and `compactMap` in general, check out [this article](https://swiftbysundell.com/basics/map-flatmap-and-compactmap).
+
 ## System requirements
 
 CollectionConcurrencyKit works on all operating system versions that support Swift’s concurrency system, which currently includes iOS 15, macOS 12, watchOS 8, and tvOS 15, as well as Linux (when using a Swift toolchain of version 5.5 or higher).
