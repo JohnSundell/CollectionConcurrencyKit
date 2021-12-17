@@ -85,9 +85,7 @@ Both throwing and non-throwing versions of all of the above APIs are included. T
 
 ## System requirements
 
-CollectionConcurrencyKit works on all operating system versions that support Swift’s concurrency system, which currently includes iOS 15, macOS 12, watchOS 8, and tvOS 15, as well as Linux (when using a Swift toolchain of version 5.5 or higher).
-
-Apple is currently working on adding backward compatibility to Swift’s concurrency system, and once that feature has become fully available (it’s currently in beta, as part of Xcode 13.2), then CollectionConcurrencyKit will be updated to support earlier OS versions as well.
+CollectionConcurrencyKit works on all operating system versions that support Swift’s concurrency system, which includes iOS 13+, macOS 10.15+, watchOS 6+, and tvOS 13+, as well as Linux (when using a Swift toolchain of version 5.5 or higher). Note that you need to use Xcode 13.2 or later when using CollectionConcurrencyKit on Apple’s platforms.
 
 ## Installation
 
