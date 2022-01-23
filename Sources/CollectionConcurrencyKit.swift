@@ -128,11 +128,18 @@ public extension Sequence {
                 }
             }
 
-            var res = [(offset: Int, value: T)]()
+            var c = 0
+            var res = Array<T?>(repeating: nil, count: c)
             while let next = await group.next() {
-                res.append(next)
+                let delta = next.offset - c + 1
+                if delta > 0 {
+                    /* The res array is too small; we have to expand it. */
+                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
+                    c += delta
+                }
+                res[next.offset] = next.value
             }
-            return res.sorted{ $0.offset < $1.offset }.map{ $0.value }
+            return res as! [T]
         }
     }
 
@@ -163,11 +170,18 @@ public extension Sequence {
                 }
             }
 
-            var res = [(offset: Int, value: T)]()
+            var c = 0
+            var res = Array<T?>(repeating: nil, count: c)
             while let next = try await group.next() {
-                res.append(next)
+                let delta = next.offset - c + 1
+                if delta > 0 {
+                    /* The res array is too small; we have to expand it. */
+                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
+                    c += delta
+                }
+                res[next.offset] = next.value
             }
-            return res.sorted{ $0.offset < $1.offset }.map{ $0.value }
+            return res as! [T]
         }
     }
 }
@@ -231,13 +245,18 @@ public extension Sequence {
                 }
             }
 
-            var res = [(offset: Int, value: T)]()
+            var c = 0
+            var res = Array<T??>(repeating: nil, count: c)
             while let next = await group.next() {
-                if let v = next.value {
-                    res.append((offset: next.offset, value: v))
+                let delta = next.offset - c + 1
+                if delta > 0 {
+                    /* The res array is too small; we have to expand it. */
+                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
+                    c += delta
                 }
+                res[next.offset] = next.value
             }
-            return res.sorted{ $0.offset < $1.offset }.map{ $0.value }
+            return (res as! [T?]).compactMap{ $0 }
         }
     }
 
@@ -270,13 +289,18 @@ public extension Sequence {
                 }
             }
 
-            var res = [(offset: Int, value: T)]()
+            var c = 0
+            var res = Array<T??>(repeating: nil, count: c)
             while let next = try await group.next() {
-                if let v = next.value {
-                    res.append((offset: next.offset, value: v))
+                let delta = next.offset - c + 1
+                if delta > 0 {
+                    /* The res array is too small; we have to expand it. */
+                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
+                    c += delta
                 }
+                res[next.offset] = next.value
             }
-            return res.sorted{ $0.offset < $1.offset }.map{ $0.value }
+            return (res as! [T?]).compactMap{ $0 }
         }
     }
 }
@@ -338,11 +362,18 @@ public extension Sequence {
                 }
             }
 
-            var res = [(offset: Int, value: T)]()
+            var c = 0
+            var res = Array<T?>(repeating: nil, count: c)
             while let next = await group.next() {
-                res.append(next)
+                let delta = next.offset - c + 1
+                if delta > 0 {
+                    /* The res array is too small; we have to expand it. */
+                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
+                    c += delta
+                }
+                res[next.offset] = next.value
             }
-            return res.sorted{ $0.offset < $1.offset }.flatMap{ $0.value }
+            return (res as! [T]).flatMap{ $0 }
         }
     }
 
@@ -376,11 +407,18 @@ public extension Sequence {
                 }
             }
 
-            var res = [(offset: Int, value: T)]()
+            var c = 0
+            var res = Array<T?>(repeating: nil, count: c)
             while let next = try await group.next() {
-                res.append(next)
+                let delta = next.offset - c + 1
+                if delta > 0 {
+                    /* The res array is too small; we have to expand it. */
+                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
+                    c += delta
+                }
+                res[next.offset] = next.value
             }
-            return res.sorted{ $0.offset < $1.offset }.flatMap{ $0.value }
+            return (res as! [T]).flatMap{ $0 }
         }
     }
 }
