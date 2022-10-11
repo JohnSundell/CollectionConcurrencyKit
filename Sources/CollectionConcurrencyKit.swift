@@ -121,14 +121,21 @@ public extension Sequence {
         withPriority priority: TaskPriority? = nil,
         _ transform: @escaping (Element) async -> T
     ) async -> [T] {
-        let tasks = map { element in
-            Task(priority: priority) {
-                await transform(element)
+        return await withTaskGroup(of: (offset: Int, value: T).self) { group in
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
+                group.addTask(priority: priority) {
+                    return await (idx, transform(element))
+                }
             }
-        }
 
-        return await tasks.asyncMap { task in
-            await task.value
+            var res = Array<T?>(repeating: nil, count: c)
+            while let next = await group.next() {
+                res[next.offset] = next.value
+            }
+            return res as! [T]
         }
     }
 
@@ -152,14 +159,21 @@ public extension Sequence {
         withPriority priority: TaskPriority? = nil,
         _ transform: @escaping (Element) async throws -> T
     ) async throws -> [T] {
-        let tasks = map { element in
-            Task(priority: priority) {
-                try await transform(element)
+        return try await withThrowingTaskGroup(of: (offset: Int, value: T).self) { group in
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
+                group.addTask(priority: priority) {
+                    return try await (idx, transform(element))
+                }
             }
-        }
 
-        return try await tasks.asyncMap { task in
-            try await task.value
+            var res = Array<T?>(repeating: nil, count: c)
+            while let next = try await group.next() {
+                res[next.offset] = next.value
+            }
+            return res as! [T]
         }
     }
 }
@@ -216,14 +230,21 @@ public extension Sequence {
         withPriority priority: TaskPriority? = nil,
         _ transform: @escaping (Element) async -> T?
     ) async -> [T] {
-        let tasks = map { element in
-            Task(priority: priority) {
-                await transform(element)
+        return await withTaskGroup(of: (offset: Int, value: T?).self) { group in
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
+                group.addTask(priority: priority) {
+                    return await (idx, transform(element))
+                }
             }
-        }
 
-        return await tasks.asyncCompactMap { task in
-            await task.value
+            var res = Array<T??>(repeating: nil, count: c)
+            while let next = await group.next() {
+                res[next.offset] = next.value
+            }
+            return (res as! [T?]).compactMap{ $0 }
         }
     }
 
@@ -249,14 +270,21 @@ public extension Sequence {
         withPriority priority: TaskPriority? = nil,
         _ transform: @escaping (Element) async throws -> T?
     ) async throws -> [T] {
-        let tasks = map { element in
-            Task(priority: priority) {
-                try await transform(element)
+        return try await withThrowingTaskGroup(of: (offset: Int, value: T?).self) { group in
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
+                group.addTask(priority: priority) {
+                    return try await (idx, transform(element))
+                }
             }
-        }
 
-        return try await tasks.asyncCompactMap { task in
-            try await task.value
+            var res = Array<T??>(repeating: nil, count: c)
+            while let next = try await group.next() {
+                res[next.offset] = next.value
+            }
+            return (res as! [T?]).compactMap{ $0 }
         }
     }
 }
@@ -311,14 +339,21 @@ public extension Sequence {
         withPriority priority: TaskPriority? = nil,
         _ transform: @escaping (Element) async -> T
     ) async -> [T.Element] {
-        let tasks = map { element in
-            Task(priority: priority) {
-                await transform(element)
+        return await withTaskGroup(of: (offset: Int, value: T).self) { group in
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
+                group.addTask(priority: priority) {
+                    return await (idx, transform(element))
+                }
             }
-        }
 
-        return await tasks.asyncFlatMap { task in
-            await task.value
+            var res = Array<T?>(repeating: nil, count: c)
+            while let next = await group.next() {
+                res[next.offset] = next.value
+            }
+            return (res as! [T]).flatMap{ $0 }
         }
     }
 
@@ -345,14 +380,21 @@ public extension Sequence {
         withPriority priority: TaskPriority? = nil,
         _ transform: @escaping (Element) async throws -> T
     ) async throws -> [T.Element] {
-        let tasks = map { element in
-            Task(priority: priority) {
-                try await transform(element)
+        return try await withThrowingTaskGroup(of: (offset: Int, value: T).self) { group in
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
+                group.addTask(priority: priority) {
+                    return try await (idx, transform(element))
+                }
             }
-        }
 
-        return try await tasks.asyncFlatMap { task in
-            try await task.value
+            var res = Array<T?>(repeating: nil, count: c)
+            while let next = try await group.next() {
+                res[next.offset] = next.value
+            }
+            return (res as! [T]).flatMap{ $0 }
         }
     }
 }
