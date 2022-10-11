@@ -122,21 +122,17 @@ public extension Sequence {
         _ transform: @escaping (Element) async -> T
     ) async -> [T] {
         return await withTaskGroup(of: (offset: Int, value: T).self) { group in
-            for (idx, element) in enumerated() {
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
                 group.addTask(priority: priority) {
                     return await (idx, transform(element))
                 }
             }
 
-            var c = 0
             var res = Array<T?>(repeating: nil, count: c)
             while let next = await group.next() {
-                let delta = next.offset - c + 1
-                if delta > 0 {
-                    /* The res array is too small; we have to expand it. */
-                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
-                    c += delta
-                }
                 res[next.offset] = next.value
             }
             return res as! [T]
@@ -164,21 +160,17 @@ public extension Sequence {
         _ transform: @escaping (Element) async throws -> T
     ) async throws -> [T] {
         return try await withThrowingTaskGroup(of: (offset: Int, value: T).self) { group in
-            for (idx, element) in enumerated() {
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
                 group.addTask(priority: priority) {
                     return try await (idx, transform(element))
                 }
             }
 
-            var c = 0
             var res = Array<T?>(repeating: nil, count: c)
             while let next = try await group.next() {
-                let delta = next.offset - c + 1
-                if delta > 0 {
-                    /* The res array is too small; we have to expand it. */
-                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
-                    c += delta
-                }
                 res[next.offset] = next.value
             }
             return res as! [T]
@@ -239,21 +231,17 @@ public extension Sequence {
         _ transform: @escaping (Element) async -> T?
     ) async -> [T] {
         return await withTaskGroup(of: (offset: Int, value: T?).self) { group in
-            for (idx, element) in enumerated() {
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
                 group.addTask(priority: priority) {
                     return await (idx, transform(element))
                 }
             }
 
-            var c = 0
             var res = Array<T??>(repeating: nil, count: c)
             while let next = await group.next() {
-                let delta = next.offset - c + 1
-                if delta > 0 {
-                    /* The res array is too small; we have to expand it. */
-                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
-                    c += delta
-                }
                 res[next.offset] = next.value
             }
             return (res as! [T?]).compactMap{ $0 }
@@ -283,21 +271,17 @@ public extension Sequence {
         _ transform: @escaping (Element) async throws -> T?
     ) async throws -> [T] {
         return try await withThrowingTaskGroup(of: (offset: Int, value: T?).self) { group in
-            for (idx, element) in enumerated() {
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
                 group.addTask(priority: priority) {
                     return try await (idx, transform(element))
                 }
             }
 
-            var c = 0
             var res = Array<T??>(repeating: nil, count: c)
             while let next = try await group.next() {
-                let delta = next.offset - c + 1
-                if delta > 0 {
-                    /* The res array is too small; we have to expand it. */
-                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
-                    c += delta
-                }
                 res[next.offset] = next.value
             }
             return (res as! [T?]).compactMap{ $0 }
@@ -356,21 +340,17 @@ public extension Sequence {
         _ transform: @escaping (Element) async -> T
     ) async -> [T.Element] {
         return await withTaskGroup(of: (offset: Int, value: T).self) { group in
-            for (idx, element) in enumerated() {
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
                 group.addTask(priority: priority) {
                     return await (idx, transform(element))
                 }
             }
 
-            var c = 0
             var res = Array<T?>(repeating: nil, count: c)
             while let next = await group.next() {
-                let delta = next.offset - c + 1
-                if delta > 0 {
-                    /* The res array is too small; we have to expand it. */
-                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
-                    c += delta
-                }
                 res[next.offset] = next.value
             }
             return (res as! [T]).flatMap{ $0 }
@@ -401,21 +381,17 @@ public extension Sequence {
         _ transform: @escaping (Element) async throws -> T
     ) async throws -> [T.Element] {
         return try await withThrowingTaskGroup(of: (offset: Int, value: T).self) { group in
-            for (idx, element) in enumerated() {
+            var c = 0
+            for element in self {
+                let idx = c
+                c += 1
                 group.addTask(priority: priority) {
                     return try await (idx, transform(element))
                 }
             }
 
-            var c = 0
             var res = Array<T?>(repeating: nil, count: c)
             while let next = try await group.next() {
-                let delta = next.offset - c + 1
-                if delta > 0 {
-                    /* The res array is too small; we have to expand it. */
-                    res.append(contentsOf: Array<T?>(repeating: nil, count: delta))
-                    c += delta
-                }
                 res[next.offset] = next.value
             }
             return (res as! [T]).flatMap{ $0 }
